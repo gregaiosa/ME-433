@@ -9,11 +9,15 @@
 #define DUTY_MIN 0.024
 #define DUTY_MAX 0.128
 
+void set_angle(float angle) {
+    float duty = (angle / 180.0) * (DUTY_MAX - DUTY_MIN) + DUTY_MIN; // Map angle to duty cycle
+    pwm_set_gpio_level(PWMPIN, duty * WRAP); // Set the PWM
+}
+
 int main()
 {
     stdio_init_all();
 
-    // turn on the pwm, in this example to 10kHz with a resolution of 1500
     gpio_set_function(PWMPIN, GPIO_FUNC_PWM); // Set the Pin to be PWM
     uint slice_num = pwm_gpio_to_slice_num(PWMPIN); // Get PWM slice number
     pwm_set_clkdiv(slice_num, PWMDIV); // sets the clock speed
@@ -23,13 +27,13 @@ int main()
     pwm_set_gpio_level(PWMPIN, WRAP/2); // set the duty cycle to 50%
 
     while (true) {
-        for (float duty = DUTY_MIN; duty <= DUTY_MAX; duty += 0.01) {
-            pwm_set_gpio_level(PWMPIN, duty * WRAP); // set the duty cycle
-            sleep_ms(100);
+        for (float angle = 0.0; angle  <= 180.0; angle += 1.0) {
+            set_angle(angle);
+            sleep_ms(20);
         }
-        for (float duty = DUTY_MAX; duty >= DUTY_MIN; duty -= 0.01) {
-            pwm_set_gpio_level(PWMPIN, duty * WRAP); // set the duty cycle
-            sleep_ms(100);
+        for (float angle = 180.0; angle >= 0.0; angle -= 1.0) {
+            set_angle(angle);
+            sleep_ms(20);
         }
     }
 }
