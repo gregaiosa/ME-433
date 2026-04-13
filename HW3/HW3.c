@@ -58,7 +58,7 @@ int main()
     setPin(ADDR, REG_IODIR, 0x7F);
     // setPin(ADDR, REG_IODIR, 0x00);
     sleep_ms(10);
-    // setPin(ADDR, REG_OLAT, 0x80);
+    setPin(ADDR, REG_OLAT, 0x80);
     // setPin(ADDR, REG_IODIR, 0x01);
 
     while (true) {
@@ -68,7 +68,7 @@ int main()
         sleep_ms(80);
 
         unsigned char buf = readPin(ADDR, REG_GPIO);
-        if (buf & 0x80) {
+        if (buf & 0x01) {
             printf("1");
             setPin(ADDR, REG_OLAT, 0x00);
         }
