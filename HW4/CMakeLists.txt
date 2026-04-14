@@ -46,7 +46,8 @@ pico_enable_stdio_usb(HW4 1)
 
 # Add the standard library to the build
 target_link_libraries(HW4
-        pico_stdlib)
+        pico_stdlib
+        pico_cyw43_arch_none)
 
 # Add the standard include files to the build
 target_include_directories(HW4 PRIVATE
@@ -56,7 +57,6 @@ target_include_directories(HW4 PRIVATE
 # Add any user requested libraries
 target_link_libraries(HW4 
         hardware_i2c
-        
         )
 
 pico_add_extra_outputs(HW4)

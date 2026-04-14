@@ -2,6 +2,8 @@
 #include "pico/stdlib.h"
 #include "hardware/i2c.h"
 #include "ssd1306.h"
+#include "pico/cyw43_arch.h"
+#include "font.h"
 
 // I2C defines
 // This example will use I2C0 on GPIO8 (SDA) and GPIO9 (SCL) running at 400KHz.
@@ -10,11 +12,23 @@
 #define I2C_SDA 12
 #define I2C_SCL 13
 
+#define HEARTBEAT_PIN CYW43_WL_GPIO_LED_PIN
 
+struct repeating_timer timer;
+
+bool repeating_timer_callback(struct repeating_timer *t) {
+    static bool led_state = false;
+    led_state = !led_state;
+    cyw43_arch_gpio_put(HEARTBEAT_PIN, led_state);
+    return true; // keep repeating
+}
 
 int main()
 {
     stdio_init_all();
+    cyw43_arch_init();
+
+    add_repeating_timer_ms(1000, repeating_timer_callback, NULL, &timer);
 
     // I2C Initialisation. Using it at 400Khz.
     i2c_init(I2C_PORT, 400*1000);
@@ -25,8 +39,31 @@ int main()
     gpio_pull_up(I2C_SCL);
     // For more examples of I2C use see https://github.com/raspberrypi/pico-examples/tree/master/i2c
 
+    ssd1306_setup();
+    ssd1306_clear();
+    ssd1306_update();
+
     while (true) {
-        printf("Hello, world!\n");
-        sleep_ms(1000);
+        for (unsigned char ii = 0; ii < 96; ii++) {
+            drawChar(0, 7, ii + 32);
+            sleep_ms(100);
+        }
     }
+}
+
+void drawChar(unsigned char x, unsigned char y, unsigned char letter) {
+    unsigned int row_count = 0;
+    for (int ii = 0; ii < 5; ii++) {
+        for (unsigned char mask = 0x01; mask != 0; mask<<= 1) {
+            if (ASCII[letter-32][ii] & mask) {
+                ssd1306_drawPixel(x + ii, y + row_count, 1);   
+            }
+            else {
+                ssd1306_drawPixel(x + ii, y + row_count, 0);
+            }
+            row_count++;
+        }
+        row_count = 0;
+    }
+    ssd1306_update();
 }
