@@ -44,10 +44,19 @@ int main()
     ssd1306_update();
 
     while (true) {
-        for (unsigned char ii = 0; ii < 96; ii++) {
-            drawChar(0, 7, ii + 32);
-            sleep_ms(100);
-        }
+        int i = 15;
+        // char message[50];
+        // sprintf(message, "my var = %d", i);
+        // drawString(20, 10, message);
+        char message[128];
+        sprintf(message, "I am trying to take");
+        drawString(0, 0, message);
+        sprintf(message, "up the whole screen.");
+        drawString(0, 8, message);
+        sprintf(message, "Is this enough chars");
+        drawString(0, 16, message);
+        sprintf(message, "to accomplish this??");
+        drawString(0, 24, message);
     }
 }
 
@@ -66,4 +75,10 @@ void drawChar(unsigned char x, unsigned char y, unsigned char letter) {
         row_count = 0;
     }
     ssd1306_update();
+}
+
+void drawString(unsigned char x, unsigned char y, char* string) {
+    for (int ii = 0; string[ii] != '\0'; ii++){
+        drawChar(x + ii*6, y, string[ii]);
+    }
 }
