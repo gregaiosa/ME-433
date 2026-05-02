@@ -4,7 +4,7 @@
 #include <math.h>
 
 #define PIN_CS 17
-#define SPI_PORT 19
+#define SPI_PORT spi0
 
 static inline void cs_select(uint cs_pin) {
     asm volatile("nop \n nop \n nop"); // FIXME
@@ -48,16 +48,20 @@ int main()
     gpio_set_function(PICO_DEFAULT_SPI_SCK_PIN, GPIO_FUNC_SPI);
     gpio_set_function(PICO_DEFAULT_SPI_TX_PIN, GPIO_FUNC_SPI);
 
+    // Initialize the CS pin as an output and set it high (deselected) by default
+    gpio_init(PIN_CS);
+    gpio_set_dir(PIN_CS, GPIO_OUT);
+    gpio_put(PIN_CS, 1);
+
     int channel1 = 0;
     int channel2 = 1;
 
     while (true) {
-        // call writeDAC
         static float t = 0;
         t += 0.01;
         float voltage = (sin(2*M_PI*2*t)+1)/2.0*3.3;
         writeDAC(channel1, voltage);
-        float voltage2 = (abs(2*(t/1 - floor(t/1 + 0.5)))) * 3.3;
+        float voltage2 = (fabs(2*(t/1 - floor(t/1 + 0.5)))) * 3.3;
         writeDAC(channel2, voltage2);
         sleep_ms(10);
     }
