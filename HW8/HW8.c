@@ -22,6 +22,7 @@ static inline void cs_deselect(uint cs_pin) {
     asm volatile("nop \n nop \n nop"); // FIXME
 }
 
+void update_dac(uint8_t, float);
 void update_dac_from_ram(int);
 
 void spi_ram_init();
@@ -44,8 +45,6 @@ void writeDAC(int channel, float voltage) {
 
     data[1] = (myV<<2) & 0xFF; // set the lower 6 bits of the voltage, shifted to the left by 2
 
-    // data[1] = 0b11111100;
-
     cs_select(PIN_CS_DAC);
     spi_write_blocking(SPI_PORT, data, 2); // where data is a uint8_t array with length len
     cs_deselect(PIN_CS_DAC);
@@ -55,9 +54,10 @@ int main()
 {
     stdio_init_all();
 
-    spi_init(spi_default, 1000 * 1000 * 20); // the baud, or bits per second
+    spi_init(SPI_PORT, 1000 * 1000 * 20); // the baud, or bits per second
     gpio_set_function(PIN_MISO, GPIO_FUNC_SPI);
     gpio_set_function(PIN_CS_DAC, GPIO_FUNC_SIO);
+    gpio_set_function(PIN_CS_RAM, GPIO_FUNC_SIO);
     gpio_set_function(PIN_SCK, GPIO_FUNC_SPI);
     gpio_set_function(PIN_MOSI, GPIO_FUNC_SPI);
 
@@ -74,10 +74,10 @@ int main()
     int i = 0;
 
     while (true) {
-        for (i = 0; i < 1024; i++) {
-            update_dac(0, (float)i * 3.3 /1024);
-            sleep_ms(1);
-        }
+        // for (i = 0; i < 1024; i++) {
+        //     update_dac(0, (float)i * 3.3 /1024);
+        //     sleep_ms(1);
+        // }
 
         for (i=0; i <1024*2; i=i+2){
             update_dac_from_ram(i);
@@ -112,7 +112,7 @@ void spi_ram_write(uint16_t addr, uint8_t * data, int len) {
 void spi_ram_read(uint16_t addr, uint8_t * data, int len) {
     uint8_t packet[5];
     packet[0] = 0b00000011; // instruction, read
-    packet[1] = addr<<8; // addrr
+    packet[1] = addr>>8; // addrr
     packet[2] = addr&0xFF; // addr
     packet[3] = 0;
     packet[4] = 0;
@@ -138,16 +138,17 @@ void ram_write_sine() {
         data_short = (channel&0b1)<<15;
         data_short = data_short | (0b111<<12);
 
-        voltage = (sin(2*M_PI*i/1024.0)+1)*512;
+        voltage = (sin(2*M_PI*i/1024.0)+1)*511.5;
 
         uint16_t v = voltage;
 
-        data_short = data_short | (0b111111111111 & v);
+        // data_short = data_short | (0b111111111111 & v);
+        data_short = data_short | (v << 2);
 
         data[0] = data_short >> 8;
         data[1] = data_short & 0xFF;
 
-        spid_ram_write(addr, data, 2);
+        spi_ram_write(addr, data, 2);
         addr = addr + 2;
     }
 }
@@ -159,7 +160,7 @@ void update_dac(uint8_t channel, float voltage) {
     data_short = (channel&0b1)<<15;
     data_short = data_short | (0b111<<12);
 
-    uint16_t v = voltage / 3.3 * 1024;
+    uint16_t v = voltage / 3.3 * 1023;
 
     data_short = data_short | (v << 2);
 
@@ -167,7 +168,7 @@ void update_dac(uint8_t channel, float voltage) {
     data[1] = data_short & 0xFF;
 
     cs_select(PIN_CS_DAC);
-    spi_write_blocking(SPI_PORT, data, 2); // where data is a
+    spi_write_blocking(SPI_PORT, data, 2); 
     cs_deselect(PIN_CS_DAC);
 }
 
@@ -176,6 +177,6 @@ void update_dac_from_ram(int i){
     spi_ram_read(i, data, 2);
 
     cs_select(PIN_CS_DAC);
-    spi_write_blocking(SPI_PORT, data, 2); // where data is a
+    spi_write_blocking(SPI_PORT, data, 2); 
     cs_deselect(PIN_CS_DAC);
 }
