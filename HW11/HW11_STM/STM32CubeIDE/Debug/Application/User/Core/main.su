@@ -1,0 +1,6 @@
+/home/gaiosa/ME-433/ME-433/HW11/HW11_STM/Core/Src/main.c:71:5:main	1240	static
+/home/gaiosa/ME-433/ME-433/HW11/HW11_STM/Core/Src/main.c:196:6:SystemClock_Config	64	static
+/home/gaiosa/ME-433/ME-433/HW11/HW11_STM/Core/Src/main.c:235:13:MX_USART1_UART_Init	8	static
+/home/gaiosa/ME-433/ME-433/HW11/HW11_STM/Core/Src/main.c:283:13:MX_GPIO_Init	24	static
+/home/gaiosa/ME-433/ME-433/HW11/HW11_STM/Core/Src/main.c:308:6:BSP_PB_Callback	16	static
+/home/gaiosa/ME-433/ME-433/HW11/HW11_STM/Core/Src/main.c:320:6:Error_Handler	8	static,ignoring_inline_asm

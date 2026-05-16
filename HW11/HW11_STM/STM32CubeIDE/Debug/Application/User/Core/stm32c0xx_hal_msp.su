@@ -1,0 +1,3 @@
+/home/gaiosa/ME-433/ME-433/HW11/HW11_STM/Core/Src/stm32c0xx_hal_msp.c:62:6:HAL_MspInit	16	static
+/home/gaiosa/ME-433/ME-433/HW11/HW11_STM/Core/Src/stm32c0xx_hal_msp.c:85:6:HAL_UART_MspInit	88	static
+/home/gaiosa/ME-433/ME-433/HW11/HW11_STM/Core/Src/stm32c0xx_hal_msp.c:133:6:HAL_UART_MspDeInit	16	static
